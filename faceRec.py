@@ -105,6 +105,7 @@ class addStuInfo(QWidget):
             self.qLineEdit.move(190,95+50*i)
             self.qLineEdit.show()
 
+            # key  value 
             self.editObjects.update({self.info[i]:self.qLineEdit})
 
         # print(self.editObjects)
@@ -429,14 +430,67 @@ class Database(QWidget):
         self.initUI()
               
     def initUI(self):
-    	self.selcetQline = QLineEdit(self)
-    	self.selcetQline.setFixedWidth(150)
-    	self.selcetQline.setFixedHeight(30)
-    	self.selcetQline.move(160,10)
-    	self.selcetQline.show()
-    	self.submitButton = QPushButton('提交', self)
-    	self.submitButton.move(350, 15)
-    	self.submitButton.clicked.connect(self.getData)
+        self.selcetQline = QLineEdit(self)
+        self.selcetQline.setFixedWidth(150)
+        self.selcetQline.setFixedHeight(30)
+        self.selcetQline.move(160,10)
+        self.selcetQline.show()
+        self.submitButton = QPushButton('提交', self)
+        self.submitButton.move(350,15)
+        self.submitButton.clicked.connect(self.getData)
+
+        self.hiddenButton = QPushButton('收起', self)
+        self.hiddenButton.move(450,15)
+        self.hiddenButton.clicked.connect(self.hidden)
+
+        self.lateButton = QPushButton('查找迟到人员', self)
+        self.lateButton.move(550,15)
+        self.lateButton.clicked.connect(self.findLate)
+
+        #初始化查询学号出来的label 和edit 对象
+        self.labelEdits=[]
+        #初始化存放迟到的label对象
+        self.label_late=[]
+
+    #查找迟到人员
+    def findLate(self):
+        self.sql_findLate = "select name from student_info where status = 0"
+        self.db = getConnection()
+        self.cursor = self.db.cursor()
+        try:
+            self.cursor.execute(self.sql_findLate)
+            self.lateNames = self.cursor.fetchall()
+            self.db.commit()
+            if len(self.lateNames) == 0:
+                ctypes.windll.user32.MessageBoxA(0,u"没有人迟到".encode('gb2312'),u' 信息'.encode('gb2312'),0)
+                return
+        except Exception as e:
+            ctypes.windll.user32.MessageBoxA(0,u"查找失败".encode('gb2312'),u' 信息'.encode('gb2312'),0)
+            print(e)
+        finally:
+            self.db.close()
+
+        self.i = 1
+        self.j = 1
+        for self.lateName in self.lateNames:
+            self.label = QLabel(self) 
+            self.label.setFixedWidth(80)   # 固定大小
+            self.label.setFixedHeight(30)
+            self.label.setText("<h3><font color='red'>"+self.lateName[0]+"</font></h3>")
+            self.label.move(80,40+20*self.i)
+            self.label.show()
+            self.label_late.append(self.label)
+            self.i = self.i + 1
+        
+
+    #隐藏信息
+    def hidden(self):
+        if len(self.labelEdits) == 0 and len(self.label_late) == 0:
+            return
+        for self.obj in self.labelEdits:
+            self.obj.setVisible(False)
+        for self.obj in self.label_late:
+            self.obj.setVisible(False)
 
     def getData(self):
         self.db = getConnection()
@@ -450,6 +504,8 @@ class Database(QWidget):
         i = 1
         #存放内容
         self.nameDic={}
+        #用于存放所有label 和 edit 对象
+        self.labelEdits=[]
         print(len(self.results))
         #初始化key值为1 j++ 
         self.j = 1
@@ -482,9 +538,12 @@ class Database(QWidget):
             self.qLineEdit.setText(str(self.nameDic[1][i-1]))
             self.label.move(10,30+30*i)
             self.label.show()
+            #self.label.setVisible(False)
             self.qLineEdit.move(130,30+30*i)
             self.qLineEdit.show()
-        
+            #添加至数组
+            self.labelEdits.append(self.label)
+            self.labelEdits.append(self.qLineEdit)
             i = i +1;
 
             
