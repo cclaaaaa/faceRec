@@ -1,0 +1,12 @@
+CREATE TABLE `student_info` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `card_number` varchar(255) DEFAULT NULL,
+  `pic_path` varchar(255) DEFAULT NULL,
+  `sex` varchar(255) DEFAULT NULL,
+  `age` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `face_token` varchar(255) DEFAULT NULL,
+  `status` int(255) DEFAULT '0',
+  `late_count` int(11) DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8
